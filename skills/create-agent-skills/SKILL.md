@@ -52,6 +52,14 @@ Keep markdown formatting within content (bold, lists, code blocks).
 ### 5. Progressive Disclosure
 
 SKILL.md under 500 lines. Split detailed content into reference files. Load only what's needed for the current workflow.
+
+### 6. Description Is the Primary Trigger
+
+The skill body doesn't load until *after* Claude decides to invoke it. All "when to use" context must live in the `description` field — not in the body. If the trigger conditions aren't in the description, the skill won't fire.
+
+```yaml
+description: Does X, Y, Z. Use when the user asks about <specific triggers>.
+```
 </essential_principles>
 
 <intake>

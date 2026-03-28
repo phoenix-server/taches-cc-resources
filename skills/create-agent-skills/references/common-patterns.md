@@ -265,7 +265,7 @@ Subcommands to implement:
 </template>
 
 <credential_file>
-Always store at `~/.claude/channels/<plugin-name>/.env` with `chmod 600`. Use `KEY=value` format (single-quote values with special characters). Never display secrets in full — mask tokens, redact passwords.
+Always store at `~/.claude/channels/<plugin-name>/.env` with `chmod 600`. Use `KEY=value` format (single-quote values containing special characters). Never display secrets in full — mask tokens, redact passwords. Re-read the file before every API call rather than caching credentials in memory.
 </credential_file>
 
 <examples>

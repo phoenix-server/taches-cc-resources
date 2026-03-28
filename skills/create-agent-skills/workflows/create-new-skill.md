@@ -9,26 +9,22 @@
 </required_reading>
 
 <process>
-## Step 1: Adaptive Requirements Gathering
+## Step 1: Understand with Concrete Examples
+
+Before designing anything, ground the skill in real usage. Ask:
+
+- "What would a user say to trigger this skill? Give me 2–3 example requests."
+- "What operations does it need to perform?" (read-only queries, writes, auth flows, etc.)
+- "Does it call an external API or service? If so, which one and how is it authenticated?"
 
 **If user provided context** (e.g., "build a skill for X"):
-→ Analyze what's stated, what can be inferred, what's unclear
-→ Skip to asking about genuine gaps only
+→ Analyze what's stated, what can be inferred, what's genuinely unclear
+→ Only ask about real gaps — don't ask things obvious from context
 
 **If user just invoked skill without context:**
-→ Ask what they want to build
+→ Ask what they want to build first
 
-### Using AskUserQuestion
-
-Ask 2-4 domain-specific questions based on actual gaps. Each question should:
-- Have specific options with descriptions
-- Focus on scope, complexity, outputs, boundaries
-- NOT ask things obvious from context
-
-Example questions:
-- "What specific operations should this skill handle?" (with options based on domain)
-- "Should this also handle [related thing] or stay focused on [core thing]?"
-- "What should the user see when successful?"
+Conclude when you have a clear picture of: usage patterns, trigger phrases, operations, and auth/config needs.
 
 ### Decision Gate
 
@@ -85,37 +81,81 @@ Factors favoring router pattern:
 - Same code runs across invocations (deploy, setup, API calls)
 - Operations are error-prone when rewritten each time
 
-See references/recommended-structure.md for templates.
+**For API-connected plugins, always include an `access` skill:**
+- Handles credential storage, connection testing, and status
+- Stored at `~/.claude/channels/<plugin-name>/${ENV}.env` (chmod 600)
+- Supports: no-args status, `setup` walkthrough, explicit `key=value` save, `clear`
+- See `references/common-patterns.md` → `access_skill_pattern`
 
-## Step 4: Create Directory
+**Channel server needed?** — Yes if the plugin receives real-time inbound events (messages, webhooks, network events). Channel plugins include a long-running MCP server (`server.ts` + `package.json` + `.mcp.json`) that pushes `notifications/claude/channel` back to Claude.
 
-```bash
-mkdir -p ~/.claude/skills/{skill-name}
-# If complex:
-mkdir -p ~/.claude/skills/{skill-name}/workflows
-mkdir -p ~/.claude/skills/{skill-name}/references
-# If needed:
-mkdir -p ~/.claude/skills/{skill-name}/templates  # for output structures
-mkdir -p ~/.claude/skills/{skill-name}/scripts    # for reusable code
+See references/recommended-structure.md for structure templates.
+
+## Step 4: Plugin-Level Files (for plugins in a monorepo)
+
+If the skill lives inside a plugin monorepo (e.g. `claude-skills`), create these before the skill files:
+
+**`.claude-plugin/plugin.json`** — plugin identity and version:
+```json
+{
+  "name": "<plugin-name>",
+  "description": "<one-line description>",
+  "version": "0.1.0",
+  "keywords": ["<plugin-name>"]
+}
 ```
 
-## Step 5: Write SKILL.md
+**`marketplace.json`** — append an entry to the monorepo's marketplace file. This step is required.
+
+**`.gitignore`** — at minimum:
+```
+node_modules/
+*.env
+```
+
+**`README.md`** — skills table, credentials section, install commands.
+
+Confirm the plugin name with the user before creating any files.
+
+## Step 5: Create Skill Directory
+
+```bash
+mkdir -p {skill-dir}/{skill-name}
+# If complex:
+mkdir -p {skill-dir}/{skill-name}/workflows
+mkdir -p {skill-dir}/{skill-name}/references
+# If needed:
+mkdir -p {skill-dir}/{skill-name}/templates  # for output structures
+mkdir -p {skill-dir}/{skill-name}/scripts    # for reusable code
+```
+
+## Step 6: Write SKILL.md
+
+**Description is the primary trigger.** The body doesn't load until after Claude invokes the skill — so all "when to use" context must be in the `description`, not the body.
+
+```yaml
+description: Does X and Y. Use when the user asks about <specific triggers>.
+```
+
+**Degrees of freedom** — match specificity to fragility:
+- Fragile, order-sensitive operations → specific step-by-step instructions
+- Flexible, judgment-based operations → high-level guidance with heuristics
 
 **Simple skill:** Write complete skill file with:
-- YAML frontmatter (name, description)
+- YAML frontmatter (name, description with triggers)
 - `<objective>`
 - `<quick_start>`
 - Content sections with pure XML
 - `<success_criteria>`
 
 **Complex skill:** Write router with:
-- YAML frontmatter
+- YAML frontmatter (description with triggers)
 - `<essential_principles>` (inline, unavoidable)
 - `<intake>` (question to ask user)
 - `<routing>` (maps answers to workflows)
 - `<reference_index>` and `<workflows_index>`
 
-## Step 6: Write Workflows (if complex)
+## Step 7: Write Workflows (if complex)
 
 For each workflow:
 ```xml
@@ -132,28 +172,29 @@ How to know this workflow is done
 </success_criteria>
 ```
 
-## Step 7: Write References (if needed)
+## Step 8: Write References (if needed)
 
 Domain knowledge that:
 - Multiple workflows might need
 - Doesn't change based on workflow
 - Contains patterns, examples, technical details
 
-## Step 8: Validate Structure
+## Step 9: Validate Structure
 
 Check:
 - [ ] YAML frontmatter valid
 - [ ] Name matches directory (lowercase-with-hyphens)
-- [ ] Description says what it does AND when to use it (third person)
-- [ ] No markdown headings (#) in body - use XML tags
+- [ ] Description includes what it does AND trigger conditions (third person)
+- [ ] No markdown headings (#) in body — use XML tags
 - [ ] Required tags present: objective, quick_start, success_criteria
 - [ ] All referenced files exist
 - [ ] SKILL.md under 500 lines
 - [ ] XML tags properly closed
 - [ ] Constitutional constraints written for any deterministic/script-owned steps (`Never override`, `Always show`, `Do not skip`)
 - [ ] Conversation arc considered: for diagnostic skills, can the agent act on results immediately in the same session?
+- [ ] Plugin-level files present if in a monorepo (plugin.json, marketplace.json, .gitignore, README.md)
 
-## Step 9: Create Slash Command
+## Step 10: Create Slash Command
 
 ```bash
 cat > ~/.claude/commands/{skill-name}.md << 'EOF'
@@ -167,7 +208,7 @@ Invoke the {skill-name} skill for: $ARGUMENTS
 EOF
 ```
 
-## Step 10: Test
+## Step 11: Test
 
 Invoke the skill and observe:
 - Does it ask the right intake question?
@@ -180,14 +221,16 @@ Iterate based on real usage, not assumptions.
 
 <success_criteria>
 Skill is complete when:
-- [ ] Requirements gathered with appropriate questions
+- [ ] Concrete examples gathered before designing
 - [ ] API research done if external service involved
+- [ ] Plugin-level files created if in a monorepo (plugin.json, marketplace.json, .gitignore, README.md)
 - [ ] Directory structure correct
-- [ ] SKILL.md has valid frontmatter
+- [ ] SKILL.md has valid frontmatter with trigger conditions in description
 - [ ] Essential principles inline (if complex skill)
 - [ ] Intake question routes to correct workflow
 - [ ] All workflows have required_reading + process + success_criteria
 - [ ] References contain reusable domain knowledge
+- [ ] `access` skill included for any API-connected plugin
 - [ ] Slash command exists and works
 - [ ] Tested with real invocation
 </success_criteria>
