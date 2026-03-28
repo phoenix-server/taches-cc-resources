@@ -214,6 +214,67 @@ Claude must now research and compare all options before starting. This wastes to
 </implementation>
 </provide_default_with_escape_hatch>
 
+<access_skill_pattern>
+<description>
+Every plugin that connects to an external service must include an `access` skill — the single, standard entry point for storing credentials, testing the connection, and showing configuration status.
+</description>
+
+<convention>
+The skill directory and name are always `access`. The invocation is always `/<plugin-name>:access`.
+
+```
+plugin-name/
+└── skills/
+    ├── access/          ← always this name
+    │   └── SKILL.md
+    ├── other-skill/
+    └── ...
+```
+</convention>
+
+<responsibilities>
+The `access` skill is responsible for:
+- Writing credentials to `~/.claude/channels/<plugin-name>/.env` (chmod 600)
+- Reading existing credentials and showing masked status
+- Testing the connection and reporting success or failure
+- Guiding first-time setup (`setup` subcommand)
+- Removing credentials (`clear` subcommand)
+</responsibilities>
+
+<template>
+```yaml
+---
+name: access
+description: Configure <Service> credentials — save the <auth details>. Use when setting up the plugin, checking connection status, or rotating credentials.
+user-invocable: true
+allowed-tools:
+  - Read
+  - Write
+  - Bash(ls *)
+  - Bash(mkdir *)
+  - Bash(chmod *)
+  - Bash(http *)
+---
+```
+
+Subcommands to implement:
+- **No args** — show current status (URL, auth masked, connection test result, what to do next)
+- **`url=<URL> token=<TOKEN>`** — save credentials and test connection
+- **`setup`** — guided walkthrough explaining each credential
+- **`clear`** — delete credentials with confirmation
+</template>
+
+<credential_file>
+Always store at `~/.claude/channels/<plugin-name>/.env` with `chmod 600`. Use `KEY=value` format (single-quote values with special characters). Never display secrets in full — mask tokens, redact passwords.
+</credential_file>
+
+<examples>
+- `/technitium-dns:access` — Technitium DNS credentials
+- `/home-assistant:access` — Home Assistant URL + token
+- `/actual-budget:configure-actual` — (old pattern, should be renamed to `access`)
+</examples>
+</access_skill_pattern>
+
 <anti_patterns>
 <description>
 Common mistakes to avoid when authoring skills.
@@ -465,6 +526,48 @@ Use pdfplumber...
 **Why it matters**: Unclosed tags break XML parsing and create ambiguous boundaries.
 </pitfall>
 </anti_patterns>
+
+<conversation_arc_pattern>
+<description>
+Diagnostic skills are most valuable when designed so initial results invite and enable follow-up actions in the same session. The agent holds full context from the diagnosis phase and can act immediately.
+
+"A script gives you a diagnosis. A skill gives you a diagnosis *and* a doctor who can treat you on the spot."
+</description>
+
+<the_arc>
+1. **Diagnose**: Skill runs checks, scores a repo, identifies issues
+2. **Explain**: Agent interprets results using access to the actual code/config
+3. **Act**: User asks "can you fix that?" — agent acts without re-loading context
+
+```
+User: "Check my repo readiness"
+Agent: [runs checks] "Score: 62/100. Missing AGENTS.md (20 pts), no CI badge (10 pts)..."
+User: "What's an AGENTS.md? Can you draft one?"
+Agent: [reads actual repo, generates tailored AGENTS.md immediately]
+User: "Run the check again"
+Agent: [re-runs] "Score: 82/100 — AGENTS.md check now passing."
+```
+</the_arc>
+
+<when_to_apply>
+Strong arc potential (design for it):
+- Code review and audits → find issues, then fix them
+- Health checks and scoring → identify gaps, then generate missing files
+- Investigation workflows → diagnose, recommend, implement
+
+Minimal arc potential (one-and-done is fine):
+- Commit message generation
+- Format conversion
+- Pure generation tasks with no diagnosis phase
+</when_to_apply>
+
+<design_guidance>
+To enable the arc:
+- Keep access to source material (files, code, config) throughout the skill — don't summarize it away
+- After showing results, make it natural to ask "can you fix that?" or "run the check again"
+- Don't require the user to re-explain context for follow-up actions; the agent already has it
+</design_guidance>
+</conversation_arc_pattern>
 
 <progressive_disclosure_pattern>
 <description>

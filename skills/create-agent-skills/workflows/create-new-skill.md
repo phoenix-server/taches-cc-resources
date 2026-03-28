@@ -150,6 +150,8 @@ Check:
 - [ ] All referenced files exist
 - [ ] SKILL.md under 500 lines
 - [ ] XML tags properly closed
+- [ ] Constitutional constraints written for any deterministic/script-owned steps (`Never override`, `Always show`, `Do not skip`)
+- [ ] Conversation arc considered: for diagnostic skills, can the agent act on results immediately in the same session?
 
 ## Step 9: Create Slash Command
 

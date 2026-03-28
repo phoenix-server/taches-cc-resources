@@ -143,6 +143,15 @@ Don't add explanation for:
 <degrees_of_freedom_principle>
 <description>
 Match the level of specificity to the task's fragility and variability. Give Claude more freedom for creative tasks, less freedom for fragile operations.
+
+A useful framing is the two-zone architecture:
+
+| Zone | Owner | Rationale |
+|------|-------|-----------|
+| Rules and execution | Scripts, templates, hard rules | Consistency across runs |
+| Interpretation and action | Agent | Every situation differs |
+
+Scripts own reproducibility. Agents own reasoning. The boundary between them should be explicit.
 </description>
 
 <high_freedom>
@@ -410,6 +419,52 @@ See [workflows-and-validation.md](workflows-and-validation.md) for validation pa
 </characteristics>
 </validation_principle>
 
+<constitutional_constraints_principle>
+<description>
+LLMs naturally tend toward helpfulness — softening negative results, adding caveats, skipping steps they judge unnecessary. Skills must defend against this with explicit prohibitions.
+</description>
+
+<the_problem>
+Without constraints, agents will:
+- Round a failing score up to "almost passing"
+- Omit a failed check from a report to avoid seeming harsh
+- Skip a step they decide isn't needed in this particular case
+- Add encouraging qualifications to a hard stop
+
+These behaviors feel helpful to the agent but break reproducibility and undermine the skill's purpose.
+</the_problem>
+
+<guidance>
+Write prohibitions, not preferences. Use "Never", "Always", "Do not" rather than "Try to" or "Prefer to":
+
+**Insufficient (preference):**
+```xml
+<workflow>
+Try to report scores accurately as provided by the script.
+</workflow>
+```
+
+**Constitutional (prohibition):**
+```xml
+<workflow>
+The script is the single source of truth for all scores. Never override, adjust, or recalculate any score from the script's output. Never add or remove checks from the report. Display failed checks exactly as shown.
+</workflow>
+```
+
+This is defensive design against the agent's helpfulness. The more specific the constraints, the more consistent every user's experience becomes.
+</guidance>
+
+<where_to_apply>
+Constitutional constraints are essential when:
+- A script or tool is the source of truth (scores, test results, validation output)
+- Output format must be exact (reports, standardized documents, audits)
+- A workflow has steps that must not be skipped
+- Negative results must be shown accurately (health checks, code reviews, scoring)
+
+Creative and reasoning tasks do not need constitutional constraints — high degrees of freedom are appropriate there.
+</where_to_apply>
+</constitutional_constraints_principle>
+
 <principle_summary>
 <xml_structure>
 Use pure XML structure for consistency, parseability, and Claude performance. Required tags: objective, quick_start, success_criteria.
@@ -420,8 +475,12 @@ Only add context Claude doesn't have. Assume Claude is smart. Challenge every pi
 </conciseness>
 
 <degrees_of_freedom>
-Match specificity to fragility. High freedom for creative tasks, low freedom for fragile operations, medium for standard work.
+Match specificity to fragility. Two zones: scripts/rules own consistency; agents own interpretation and reasoning. High freedom for creative tasks, low freedom for fragile operations.
 </degrees_of_freedom>
+
+<constitutional_constraints>
+Write prohibitions, not preferences, for deterministic steps. LLMs tend toward helpfulness — explicit "never override" / "always show" constraints prevent softening of results or skipping of steps.
+</constitutional_constraints>
 
 <model_testing>
 Test with all target models. Balance detail level to work across Haiku, Sonnet, and Opus.
