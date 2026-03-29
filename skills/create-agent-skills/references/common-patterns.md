@@ -234,12 +234,23 @@ plugin-name/
 
 <responsibilities>
 The `access` skill is responsible for:
-- Writing credentials to `~/.claude/channels/<plugin-name>/.env` (chmod 600)
+- Writing credentials to `~/.claude/channels/<plugin-name>/${ENV}.env` (chmod 600)
 - Reading existing credentials and showing masked status
 - Testing the connection and reporting success or failure
 - Guiding first-time setup (`setup` subcommand)
-- Removing credentials (`clear` subcommand)
+- Removing credentials (`clear` and `clear <key>` subcommands)
+- Supporting multiple named environments via `env=<name>`
 </responsibilities>
+
+<multi_environment_support>
+Parse `env=<name>` from `$ARGUMENTS` before any other processing. Strip it from remaining arguments.
+
+- Default: `ENV=""` → resolves to `~/.claude/channels/<plugin-name>/.env`
+- Named: `env=production` → `~/.claude/channels/<plugin-name>/production.env`
+- Display `ENV=""` as "(default)" in status output
+- Omit `env=` from suggested commands when ENV is empty
+- In the status view, list all `*.env` files in the channels directory, showing `.env` as "(default)"
+</multi_environment_support>
 
 <template>
 ```yaml
@@ -253,25 +264,26 @@ allowed-tools:
   - Bash(ls *)
   - Bash(mkdir *)
   - Bash(chmod *)
-  - Bash(http *)
 ---
 ```
 
 Subcommands to implement:
-- **No args** — show current status (URL, auth masked, connection test result, what to do next)
-- **`url=<URL> token=<TOKEN>`** — save credentials and test connection
+- **No args** — show current env, credentials (masked), connection test, available environments
+- **`key=value ...`** — save one or more credentials and test connection
 - **`setup`** — guided walkthrough explaining each credential
-- **`clear`** — delete credentials with confirmation
+- **`clear`** — delete all credentials for the active env (confirm first)
+- **`clear <key>`** — remove a single key from the active env's file
 </template>
 
 <credential_file>
-Always store at `~/.claude/channels/<plugin-name>/.env` with `chmod 600`. Use `KEY=value` format (single-quote values containing special characters). Never display secrets in full — mask tokens, redact passwords. Re-read the file before every API call rather than caching credentials in memory.
+Always store at `~/.claude/channels/<plugin-name>/${ENV}.env` with `chmod 600`. Use `KEY=value` format (single-quote values containing special characters). Never display secrets in full — mask tokens, redact passwords. Re-read the file before every API call rather than caching credentials in memory.
 </credential_file>
 
 <examples>
 - `/technitium-dns:access` — Technitium DNS credentials
+- `/technitium-dns:access env=homelab url=http://192.168.1.1:5380 token=abc` — named env
 - `/home-assistant:access` — Home Assistant URL + token
-- `/actual-budget:configure-actual` — (old pattern, should be renamed to `access`)
+- `/actual-budget:access` — Actual Budget URL + password
 </examples>
 </access_skill_pattern>
 
