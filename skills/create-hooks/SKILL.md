@@ -1,6 +1,6 @@
 ---
 name: create-hooks
-description: Expert guidance for creating, configuring, and using Claude Code hooks. Use when working with hooks, setting up event listeners, validating commands, automating workflows, adding notifications, or understanding hook types (PreToolUse, PostToolUse, Stop, SessionStart, UserPromptSubmit, etc).
+description: Create Claude Code hooks (PreToolUse, PostToolUse, Stop, SessionStart, UserPromptSubmit). Use when setting up event listeners, validating commands, or automating workflows.
 ---
 
 <objective>

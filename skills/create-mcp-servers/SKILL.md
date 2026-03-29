@@ -1,6 +1,6 @@
 ---
 name: create-mcp-servers
-description: Create Model Context Protocol (MCP) servers that expose tools, resources, and prompts to Claude. Use when building custom integrations, APIs, data sources, or any server that Claude should interact with via the MCP protocol. Supports both TypeScript and Python implementations.
+description: Create MCP servers (TypeScript or Python) exposing tools, resources, and prompts. Use when building custom Claude integrations or API servers.
 ---
 
 <objective>
