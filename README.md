@@ -169,6 +169,10 @@ Build skills by describing what you want. Asks clarifying questions, researches 
 
 **Context-aware:** Detects if you're in a skill directory and presents relevant options. Progressive disclosure guides you through complex choices.
 
+**Test and iterate:** Spawn parallel subagents (with-skill vs. baseline), draft quantitative assertions while runs are in progress, grade outputs, and improve based on feedback — until the skill demonstrably works.
+
+**Optimize descriptions:** Generate 20 trigger eval queries, score the current description, and rewrite it to improve triggering accuracy before shipping.
+
 When things don't work perfectly, `/heal-skill` analyzes what went wrong and updates the skill based on what actually worked.
 
 Commands: `/create-agent-skill`, `/heal-skill`, `/audit-skill`
