@@ -78,9 +78,21 @@ Evaluate against each criterion:
 - [ ] Success criteria are verifiable
 - [ ] No redundant content across files
 
-## Step 4: Generate Report
+## Step 4: Check Degrees of Freedom
 
-Present findings as:
+For each step or operation in the skill, evaluate whether the instruction specificity matches the actual fragility:
+
+- **Fragile / order-sensitive operations** (e.g. API calls, file transforms, multi-step deploys) → should have specific step-by-step instructions (low freedom). Flag if guidance is vague.
+- **Flexible / judgment-based operations** (e.g. "write a summary", "choose appropriate format") → should use high-level guidance or heuristics (high freedom). Flag if over-constrained with rigid MUSTs.
+- **Mismatch**: rigid instructions on flexible tasks waste tokens and limit Claude's reasoning; vague instructions on fragile tasks cause errors.
+
+## Step 5: Generate Report
+
+Present findings grouped by severity:
+
+**High** — causes the skill to misfire, never trigger, or produce unreliable results
+**Medium** — wastes context window, makes the skill harder to maintain, or mismatches degrees of freedom
+**Low** — style or minor clarity improvements
 
 ```
 ## Audit Report: {skill-name}
@@ -89,16 +101,23 @@ Present findings as:
 - [list passing items]
 
 ### ⚠️ Issues Found
+
+**High**
 1. **[Issue name]**: [Description]
    → Fix: [Specific action]
 
+**Medium**
 2. **[Issue name]**: [Description]
+   → Fix: [Specific action]
+
+**Low**
+3. **[Issue name]**: [Description]
    → Fix: [Specific action]
 
 ### 📊 Score: X/Y criteria passing
 ```
 
-## Step 5: Offer Fixes
+## Step 6: Offer Fixes
 
 If issues found, ask:
 "Would you like me to fix these issues?"
