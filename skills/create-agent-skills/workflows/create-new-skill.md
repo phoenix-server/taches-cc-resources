@@ -208,7 +208,7 @@ Invoke the {skill-name} skill for: $ARGUMENTS
 EOF
 ```
 
-## Step 11: Test
+## Step 11: Smoke Test
 
 Invoke the skill and observe:
 - Does it ask the right intake question?
@@ -216,7 +216,13 @@ Invoke the skill and observe:
 - Does the workflow load the right references?
 - Does output match expectations?
 
-Iterate based on real usage, not assumptions.
+## Step 12: Rigorous Testing (recommended)
+
+For skills with objectively verifiable outputs, run a full evaluation loop using `workflows/test-and-iterate.md`. This spawns parallel subagents (with-skill vs. baseline), grades assertions, and gives you a clear picture of where the skill helps.
+
+For skills with subjective outputs (writing style, design quality), qualitative review is usually enough.
+
+After the skill is in good shape, consider running `workflows/optimize-description.md` to tune the description for better triggering accuracy.
 </process>
 
 <success_criteria>
@@ -232,5 +238,7 @@ Skill is complete when:
 - [ ] References contain reusable domain knowledge
 - [ ] `access` skill included for any API-connected plugin
 - [ ] Slash command exists and works
-- [ ] Tested with real invocation
+- [ ] Smoke tested with real invocation
+- [ ] (Optional) Rigorous eval loop run via test-and-iterate.md
+- [ ] (Optional) Description optimized via optimize-description.md
 </success_criteria>

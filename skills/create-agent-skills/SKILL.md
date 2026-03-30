@@ -68,7 +68,9 @@ What would you like to do?
 1. Create new skill
 2. Audit/modify existing skill
 3. Add component (workflow/reference/template/script)
-4. Get guidance
+4. Test and iterate on a skill
+5. Optimize skill description (improve triggering accuracy)
+6. Get guidance
 
 **Wait for response before proceeding.**
 </intake>
@@ -79,7 +81,9 @@ What would you like to do?
 | 1, "create", "new", "build" | Ask: "Task-execution skill or domain expertise skill?" | Route to appropriate create workflow |
 | 2, "audit", "modify", "existing" | Ask: "Path to skill?" | Route to appropriate workflow |
 | 3, "add", "component" | Ask: "Add what? (workflow/reference/template/script)" | workflows/add-{type}.md |
-| 4, "guidance", "help" | General guidance | workflows/get-guidance.md |
+| 4, "test", "evaluate", "iterate", "evals" | Proceed directly | workflows/test-and-iterate.md |
+| 5, "optimize", "description", "triggering" | Proceed directly | workflows/optimize-description.md |
+| 6, "guidance", "help" | General guidance | workflows/get-guidance.md |
 
 **Progressive disclosure for option 1 (create):**
 - If user selects "Task-execution skill" → workflows/create-new-skill.md
@@ -98,6 +102,8 @@ What would you like to do?
 - "create skill for X", "build new skill" → workflows/create-new-skill.md
 - "add workflow", "add reference", etc. → workflows/add-{type}.md
 - "upgrade to router" → workflows/upgrade-to-router.md
+- "test this skill", "run evals", "evaluate results", "iterate" → workflows/test-and-iterate.md
+- "optimize description", "improve triggering", "fix triggering" → workflows/optimize-description.md
 
 **After reading the workflow, follow it exactly.**
 </routing>
@@ -171,6 +177,8 @@ All in `workflows/`:
 | add-template.md | Add a template to existing skill |
 | add-script.md | Add a script to existing skill |
 | upgrade-to-router.md | Convert simple skill to router pattern |
+| test-and-iterate.md | Run evals with parallel subagents, review results, iterate |
+| optimize-description.md | Improve triggering accuracy via eval queries |
 | get-guidance.md | Help decide what kind of skill to build |
 </workflows_index>
 
