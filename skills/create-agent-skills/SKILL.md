@@ -60,6 +60,23 @@ The skill body doesn't load until *after* Claude decides to invoke it. All "when
 ```yaml
 description: Does X, Y, Z. Use when the user asks about <specific triggers>.
 ```
+
+### 7. Skills Must Be Portable
+
+**Never hardcode project-specific values inside a skill.** This includes:
+- Absolute file paths (`/workspace/projects/akkadian-agent/`)
+- Repo names or usernames (`cameri/akkadian-agent`)
+- Container or service names (`akkadian-agent`)
+- Health signals, port numbers, or package manager assumptions
+- Trusted user lists
+
+Skills that hardcode these values silently break when used in any other context. Adding a new project should never require editing the skill.
+
+**Where project-specific values go:**
+- **Plugin's CLAUDE.md** — values Claude needs to act autonomously (repo map, local paths, trusted principals)
+- **Plugin's README.md** — values a human needs to configure (non-critical, informational)
+
+**Skills use runtime discovery:** read CLAUDE.md at invocation time, inspect the filesystem (`compose.yml`, `package.json`, `pnpm-lock.yaml`), or derive values from the webhook payload. See `references/portability.md` for patterns.
 </essential_principles>
 
 <intake>
@@ -155,7 +172,7 @@ scripts/:
 All in `references/`:
 
 **Structure:** recommended-structure.md, skill-structure.md
-**Principles:** core-principles.md, be-clear-and-direct.md, use-xml-tags.md
+**Principles:** core-principles.md, be-clear-and-direct.md, use-xml-tags.md, portability.md
 **Patterns:** common-patterns.md, workflows-and-validation.md
 **Assets:** using-templates.md, using-scripts.md
 **Advanced:** executable-code.md, api-security.md, iteration-and-testing.md
@@ -205,4 +222,6 @@ A well-structured skill:
 - Keeps SKILL.md under 500 lines
 - Asks minimal clarifying questions only when truly needed
 - Has been tested with real usage
+- Contains no hardcoded project-specific values (paths, repo names, service names, trusted users)
+- Project-specific configuration lives in plugin's CLAUDE.md, not in skill files
 </success_criteria>

@@ -72,6 +72,15 @@ Evaluate against each criterion:
 - [ ] Each has success_criteria section
 - [ ] Required reading references exist
 
+### Portability
+- [ ] No absolute file paths outside the skill directory itself
+- [ ] No hardcoded repo names, usernames, or org names
+- [ ] No hardcoded service names, container names, or port numbers
+- [ ] No hardcoded health check strings or log patterns
+- [ ] No hardcoded trusted user or principal lists
+- [ ] Project-specific values documented in the plugin's CLAUDE.md
+- [ ] Skill reads CLAUDE.md (or equivalent) at runtime for project-specific values
+
 ### Content Quality
 - [ ] Principles are actionable (not vague platitudes)
 - [ ] Steps are specific (not "do the thing")
@@ -145,6 +154,7 @@ If fixing:
 **Missing routing**: Complex skill without intake/routing
 **Broken references**: Files mentioned but don't exist
 **Redundant content**: Same information in multiple places
+**Hardcoded external references**: Project-specific paths, repo names, service names, health signals, or trusted users embedded in skill files instead of the plugin's CLAUDE.md
 </audit_anti_patterns>
 
 <success_criteria>

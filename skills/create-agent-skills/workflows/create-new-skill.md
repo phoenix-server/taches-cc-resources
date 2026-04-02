@@ -193,6 +193,10 @@ Check:
 - [ ] Constitutional constraints written for any deterministic/script-owned steps (`Never override`, `Always show`, `Do not skip`)
 - [ ] Conversation arc considered: for diagnostic skills, can the agent act on results immediately in the same session?
 - [ ] Plugin-level files present if in a monorepo (plugin.json, marketplace.json, .gitignore, README.md)
+- [ ] No absolute file paths outside the skill directory itself
+- [ ] No hardcoded repo names, usernames, service names, health signals, or trusted user lists
+- [ ] Project-specific values live in the plugin's CLAUDE.md, not in skill files
+- [ ] Skill reads CLAUDE.md (or equivalent) at runtime for project-specific values
 
 ## Step 10: Create Slash Command
 
@@ -239,6 +243,7 @@ Skill is complete when:
 - [ ] `access` skill included for any API-connected plugin
 - [ ] Slash command exists and works
 - [ ] Smoke tested with real invocation
+- [ ] No hardcoded project-specific values (paths, repo names, service names, health signals, trusted users)
 - [ ] (Optional) Rigorous eval loop run via test-and-iterate.md
 - [ ] (Optional) Description optimized via optimize-description.md
 </success_criteria>
